@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isPremiumUser(userId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(userId)) &&
+             get(/databases/$(database)/documents/users/$(userId)).data.hasPremiumAccess == true;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      // Allow writes from the server-side webhook for subscription management
+      allow write: if true;
+    }
+    
+    // Regular predictions usage tracking
+    match /daily_usage/{usageId} {
+      allow read: if isAuthenticated() && 
+                 usageId.matches(request.auth.uid + '_.*');
+      allow write: if isAuthenticated() && 
+                  usageId.matches(request.auth.uid + '_.*') &&
+                  request.resource.data.userId == request.auth.uid;
+    }
+
+    // Premium predictions usage tracking
+    match /premium_daily_usage/{usageId} {
+      allow read: if isAuthenticated() && 
+                 usageId.matches(request.auth.uid + '_.*');
+      allow write: if isAuthenticated() && 
+                  usageId.matches(request.auth.uid + '_.*') &&
+                  request.resource.data.userId == request.auth.uid &&
+                  isPremiumUser(request.auth.uid);
+    }
+
+    // Predictions history
+    match /predictions/{predictionId} {
+      allow read: if isAuthenticated() && 
+                 request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && 
+                   request.auth.uid == request.resource.data.userId &&
+                   (!request.resource.data.isPremium || isPremiumUser(request.auth.uid));
+    }
+
+    // Blog posts
+    match /blog_posts/{postId} {
+      allow read: if !resource.data.published || 
+                 resource.data.published == true;
+      allow write: if isAdmin();
+    }
+  }
+} 

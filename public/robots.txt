@@ -1,0 +1,16 @@
+# Allow all crawlers
+User-agent: *
+
+# Allow crawling of all public content
+Allow: /
+Allow: /blog
+Allow: /blog/*
+Allow: /login
+
+# Prevent crawling of admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /payment-success
+
+# Sitemap location
+Sitemap: /sitemap.xml 
