@@ -45,7 +45,8 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
         model: 'deepseek-chat',
@@ -58,7 +59,8 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
         top_p: 0.9,
         frequency_penalty: 0,
         presence_penalty: 0,
-        stream: false
+        stream: false,
+        timeout: 60000 // Add a 60-second timeout
       })
     });
 
@@ -85,6 +87,8 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
         throw new Error('Rate limit exceeded');
       } else if (response.status === 500) {
         throw new Error('DeepSeek API server error');
+      } else if (response.status === 504) {
+        throw new Error('DeepSeek API timeout');
       }
       
       throw new Error(`DeepSeek API error: ${response.status}`);
@@ -121,6 +125,11 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
       return NextResponse.json(
         { error: '🌌 The cosmic energies need time to replenish. Please wait a moment before seeking more guidance.' },
         { status: 429 }
+      );
+    } else if (error.message === 'DeepSeek API timeout') {
+      return NextResponse.json(
+        { error: '🌌 The Oracle\'s vision requires more time to manifest. Please try again.' },
+        { status: 504 }
       );
     }
     
