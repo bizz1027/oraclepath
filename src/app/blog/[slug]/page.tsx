@@ -12,31 +12,32 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
+  const title = post.seoTitle || post.title;
+  const description = post.seoDescription || post.excerpt;
+
   return {
-    title: post.seoTitle || post.title,
-    description: post.seoDescription || post.excerpt,
+    title,
+    description,
     keywords: post.seoKeywords,
     openGraph: {
-      title: post.seoTitle || post.title,
-      description: post.seoDescription || post.excerpt,
+      title,
+      description,
       type: 'article',
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
       authors: [post.author],
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(post.title)}`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      images: [{
+        url: '/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: title,
+      }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.seoTitle || post.title,
-      description: post.seoDescription || post.excerpt,
-      images: [`/api/og?title=${encodeURIComponent(post.title)}`],
+      title,
+      description,
+      images: ['/og-default.png'],
     },
   };
 }
