@@ -3,6 +3,9 @@ import { NextResponse } from 'next/server';
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
+export const maxDuration = 300; // Set max duration to 300 seconds (5 minutes)
+export const dynamic = 'force-dynamic'; // Disable static optimization
+
 export async function POST(request: Request) {
   try {
     const { prompt, isPremium } = await request.json();
@@ -34,79 +37,88 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
       throw new Error('DeepSeek API key is not configured');
     }
 
-    console.log('Sending request to DeepSeek API...', {
-      apiUrl: API_URL,
-      hasApiKey: !!DEEPSEEK_API_KEY,
-      promptLength: prompt.length,
-      isPremium
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
-        ],
-        temperature: isPremium ? 0.7 : 0.6,
-        max_tokens: isPremium ? 1000 : 500,
-        top_p: 0.9,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        stream: false,
-        timeout: 60000 // Add a 60-second timeout
-      })
-    });
+    try {
+      console.log('Sending request to DeepSeek API...', {
+        apiUrl: API_URL,
+        hasApiKey: !!DEEPSEEK_API_KEY,
+        promptLength: prompt.length,
+        isPremium
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error('DeepSeek API Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData,
-        request: {
-          apiUrl: API_URL,
-          hasApiKey: !!DEEPSEEK_API_KEY,
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
           model: 'deepseek-chat',
           messages: [
-            { role: 'system', content: 'System prompt length: ' + systemPrompt.length },
-            { role: 'user', content: 'User prompt length: ' + prompt.length }
-          ]
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ],
+          temperature: isPremium ? 0.7 : 0.6,
+          max_tokens: isPremium ? 1000 : 500,
+          top_p: 0.9,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+          stream: false
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('DeepSeek API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          request: {
+            apiUrl: API_URL,
+            hasApiKey: !!DEEPSEEK_API_KEY,
+            model: 'deepseek-chat',
+            messages: [
+              { role: 'system', content: 'System prompt length: ' + systemPrompt.length },
+              { role: 'user', content: 'User prompt length: ' + prompt.length }
+            ]
+          }
+        });
+        
+        if (response.status === 401) {
+          throw new Error('Invalid API key');
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded');
+        } else if (response.status === 500) {
+          throw new Error('DeepSeek API server error');
+        } else if (response.status === 504) {
+          throw new Error('DeepSeek API timeout');
         }
+        
+        throw new Error(`DeepSeek API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('DeepSeek API response received:', {
+        status: response.status,
+        hasChoices: !!data.choices,
+        choicesLength: data.choices?.length
       });
       
-      if (response.status === 401) {
-        throw new Error('Invalid API key');
-      } else if (response.status === 429) {
-        throw new Error('Rate limit exceeded');
-      } else if (response.status === 500) {
-        throw new Error('DeepSeek API server error');
-      } else if (response.status === 504) {
-        throw new Error('DeepSeek API timeout');
+      if (!data.choices?.[0]?.message?.content) {
+        console.error('Invalid response format from DeepSeek:', data);
+        throw new Error('Invalid response format from DeepSeek API');
       }
-      
-      throw new Error(`DeepSeek API error: ${response.status}`);
-    }
 
-    const data = await response.json();
-    console.log('DeepSeek API response received:', {
-      status: response.status,
-      hasChoices: !!data.choices,
-      choicesLength: data.choices?.length
-    });
-    
-    if (!data.choices?.[0]?.message?.content) {
-      console.error('Invalid response format from DeepSeek:', data);
-      throw new Error('Invalid response format from DeepSeek API');
+      return NextResponse.json({ prediction: data.choices[0].message.content });
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    return NextResponse.json({ prediction: data.choices[0].message.content });
   } catch (error: any) {
     console.error('Prediction error:', {
       message: error.message,
@@ -116,7 +128,12 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
     });
     
     // Handle specific error types
-    if (error.message === 'Invalid API key') {
+    if (error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: '🌌 The Oracle\'s vision requires more time to manifest. Please try again.' },
+        { status: 504 }
+      );
+    } else if (error.message === 'Invalid API key') {
       return NextResponse.json(
         { error: '🌌 The Oracle\'s connection is disrupted. Please contact the temple keepers.' },
         { status: 401 }
