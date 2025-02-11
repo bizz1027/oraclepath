@@ -23,9 +23,6 @@ const nextConfig = {
   httpAgentOptions: {
     keepAlive: true,
   },
-  serverRuntimeConfig: {
-    maxDuration: 60,
-  },
 }
 
 module.exports = nextConfig 

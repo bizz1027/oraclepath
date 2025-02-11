@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server';
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
-export const maxDuration = 300; // Set max duration to 300 seconds (5 minutes)
+// Set the maximum duration to 60 seconds (maximum allowed for hobby plan)
+export const runtime = 'edge';
+export const maxDuration = 60;
 export const dynamic = 'force-dynamic'; // Disable static optimization
 
 export async function POST(request: Request) {
