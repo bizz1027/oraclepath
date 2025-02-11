@@ -30,10 +30,17 @@ Begin with an insight into the current situation (2 sentences), then provide pra
 Keep your answers direct yet mystical, and ensure they are grounded in practical reality. Your total response should be at least 150 words. Do not use any markdown formatting or numbering in your response.`;
 
     if (!DEEPSEEK_API_KEY) {
+      console.error('DeepSeek API key is missing in environment variables');
       throw new Error('DeepSeek API key is not configured');
     }
 
-    console.log('Sending request to DeepSeek API...');
+    console.log('Sending request to DeepSeek API...', {
+      apiUrl: API_URL,
+      hasApiKey: !!DEEPSEEK_API_KEY,
+      promptLength: prompt.length,
+      isPremium
+    });
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -62,6 +69,8 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
         statusText: response.statusText,
         error: errorData,
         request: {
+          apiUrl: API_URL,
+          hasApiKey: !!DEEPSEEK_API_KEY,
           model: 'deepseek-chat',
           messages: [
             { role: 'system', content: 'System prompt length: ' + systemPrompt.length },
@@ -95,7 +104,12 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
 
     return NextResponse.json({ prediction: data.choices[0].message.content });
   } catch (error: any) {
-    console.error('Prediction error:', error);
+    console.error('Prediction error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
     
     // Handle specific error types
     if (error.message === 'Invalid API key') {
