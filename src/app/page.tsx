@@ -185,32 +185,32 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-8">
+    <main className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-500 drop-shadow-[0_0_15px_rgba(192,132,252,0.2)]">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 space-y-4 sm:space-y-0">
+          <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-500 drop-shadow-[0_0_15px_rgba(192,132,252,0.2)]">
             Oracle Path
           </h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="px-4 py-2 bg-purple-800 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-purple-800 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 w-full sm:w-auto justify-center"
             >
               <span>📜</span>
               <span>{showHistory ? 'Hide Prophecies' : 'View Prophecies'}</span>
             </button>
             
-            <div className="relative" ref={userMenuRef}>
+            <div className="relative w-full sm:w-auto" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 transition-colors"
+                className="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 transition-colors w-full sm:w-auto"
               >
                 <img
                   src={user?.photoURL || ''}
                   alt={user?.displayName || 'Seeker'}
                   className="w-8 h-8 rounded-full"
                 />
-                <span>{user?.displayName}</span>
+                <span className="truncate max-w-[150px]">{user?.displayName}</span>
                 <svg
                   className={`w-4 h-4 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`}
                   fill="none"
@@ -254,16 +254,16 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mb-12 flex flex-col items-center space-y-6">
+        <div className="mb-8 sm:mb-12 flex flex-col items-center space-y-6">
           {!hasPremiumAccess && (
-            <div className="w-full max-w-2xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 p-6 rounded-xl border border-purple-500/30 shadow-xl backdrop-blur-sm hover:shadow-purple-500/10 transition-all duration-500">
+            <div className="w-full max-w-2xl bg-gradient-to-r from-purple-900/50 to-pink-900/50 p-4 sm:p-6 rounded-xl border border-purple-500/30 shadow-xl backdrop-blur-sm hover:shadow-purple-500/10 transition-all duration-500">
               <div className="text-center space-y-3">
-                <h2 className="text-xl font-semibold text-purple-200">✨ Enhance Your Oracle Experience</h2>
-                <p className="text-purple-300">Unlock unlimited Divine Insights and deeper mystical wisdom</p>
+                <h2 className="text-lg sm:text-xl font-semibold text-purple-200">✨ Enhance Your Oracle Experience</h2>
+                <p className="text-sm sm:text-base text-purple-300">Unlock unlimited Divine Insights and deeper mystical wisdom</p>
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={handlePremiumClick}
-                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all shadow-lg"
+                    className="px-6 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all shadow-lg text-sm sm:text-base"
                   >
                     ✨ Unlock Divine Insight - €4.99
                   </button>
@@ -275,7 +275,7 @@ export default function Home() {
           <div className="flex justify-center space-x-4">
             <button
               onClick={() => setIsPremium(false)}
-              className={`px-6 py-2 rounded-full ${
+              className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
                 !isPremium
                   ? 'bg-purple-600 text-white'
                   : 'bg-purple-900 text-purple-300'
@@ -286,7 +286,7 @@ export default function Home() {
             {hasPremiumAccess && (
               <button
                 onClick={() => setIsPremium(true)}
-                className={`px-6 py-2 rounded-full ${
+                className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
                   isPremium
                     ? 'bg-purple-600 text-white'
                     : 'bg-purple-900 text-purple-300'
@@ -297,7 +297,7 @@ export default function Home() {
             )}
           </div>
           {!isPremium && (
-            <div className="text-sm text-purple-300">
+            <div className="text-xs sm:text-sm text-purple-300">
               {remainingPredictions} Mystic Visions remaining today
             </div>
           )}
@@ -309,7 +309,7 @@ export default function Home() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Share your question with the Oracle... Let your thoughts flow freely, and the ancient wisdom shall guide you."
-              className="w-full h-40 p-4 rounded-lg bg-purple-900/50 text-white placeholder-purple-300 border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 hover:bg-purple-900/60 focus:bg-purple-900/70 backdrop-blur-sm"
+              className="w-full h-32 sm:h-40 p-4 rounded-lg bg-purple-900/50 text-white placeholder-purple-300 border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 hover:bg-purple-900/60 focus:bg-purple-900/70 backdrop-blur-sm text-sm sm:text-base"
               required
             />
           </div>
@@ -317,7 +317,7 @@ export default function Home() {
           <button
             type="submit"
             disabled={isLoading || (isPremium && !hasPremiumAccess) || (!isPremium && remainingPredictions === 0)}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:opacity-90 transition-all disabled:opacity-50 relative overflow-hidden group shadow-lg hover:shadow-purple-500/20"
+            className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:opacity-90 transition-all disabled:opacity-50 relative overflow-hidden group shadow-lg hover:shadow-purple-500/20 text-sm sm:text-base"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 group-hover:scale-110 transform transition-all duration-700 ease-out"></span>
             <span className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] transition-opacity duration-500"></span>
@@ -335,22 +335,22 @@ export default function Home() {
         </form>
 
         {prediction && (
-          <div className="mt-8 p-6 rounded-lg bg-purple-900/30 border border-purple-700 backdrop-blur-sm animate-fadeIn hover:shadow-purple-500/10 transition-all duration-500">
-            <h2 className="text-xl font-semibold mb-4">🔮 The Oracle Speaks:</h2>
-            <p className="whitespace-pre-wrap">{prediction}</p>
+          <div className="mt-6 sm:mt-8 p-4 sm:p-6 rounded-lg bg-purple-900/30 border border-purple-700 backdrop-blur-sm animate-fadeIn hover:shadow-purple-500/10 transition-all duration-500">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">🔮 The Oracle Speaks:</h2>
+            <p className="whitespace-pre-wrap text-sm sm:text-base">{prediction}</p>
           </div>
         )}
 
         {showHistory && (
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <PredictionHistory />
           </div>
         )}
 
-        <div className="mt-12 text-center">
+        <div className="mt-8 sm:mt-12 text-center">
           <Link
             href="/blog"
-            className="inline-flex items-center space-x-2 text-purple-300 hover:text-purple-200 transition-colors"
+            className="inline-flex items-center space-x-2 text-purple-300 hover:text-purple-200 transition-colors text-sm sm:text-base"
           >
             <span>📚</span>
             <span>Explore the Oracle's Blog</span>
