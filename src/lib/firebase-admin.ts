@@ -15,14 +15,17 @@ function getFirebaseAdminApp() {
 
   // Initialize the app with credentials
   try {
+    // Clean and format the private key
+    const formattedPrivateKey = privateKey
+      .replace(/\\n/g, '\n')
+      .replace(/^"/, '')
+      .replace(/"$/, '');
+
     return initializeApp({
       credential: cert({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-        // Handle the private key without any string manipulation
-        privateKey: privateKey.includes('\\n') 
-          ? JSON.parse('"' + privateKey + '"') 
-          : privateKey,
+        privateKey: formattedPrivateKey,
       }),
     });
   } catch (error: any) {
