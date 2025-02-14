@@ -45,10 +45,6 @@ export default function DisclaimerModal() {
         </h2>
         
         <div className="space-y-3 sm:space-y-4 text-purple-100 text-sm sm:text-base">
-          <p>
-            Welcome, seeker of mystical wisdom. Before embarking on your journey with Oracle Path, please acknowledge the following:
-          </p>
-          
           <div className="space-y-2">
             <div>
               <p className="text-purple-200 font-semibold">Entertainment Purposes</p>
