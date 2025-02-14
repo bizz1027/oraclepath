@@ -9,6 +9,7 @@ import { savePrediction } from '../lib/predictions';
 import { checkDailyLimit, incrementDailyUsage, getRemainingPredictions } from '../lib/usage';
 import PredictionHistory from '../components/PredictionHistory';
 import PaymentModal from '../components/PaymentModal';
+import DisclaimerModal from '../components/DisclaimerModal';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function Home() {
@@ -347,7 +348,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mt-8 sm:mt-12 text-center">
+        <div className="mt-8 sm:mt-12 text-center space-y-4">
           <Link
             href="/blog"
             className="inline-flex items-center space-x-2 text-purple-300 hover:text-purple-200 transition-colors text-sm sm:text-base"
@@ -355,6 +356,9 @@ export default function Home() {
             <span>📚</span>
             <span>Explore the Oracle's Blog</span>
           </Link>
+          <div>
+            <DisclaimerModal />
+          </div>
         </div>
       </div>
 
