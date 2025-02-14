@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Base URL - use localhost in development
   const baseUrl = process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3000' 
-    : (process.env.NEXT_PUBLIC_BASE_URL || 'https://oraclepath.com');
+    : (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.oracle-path.com');
 
   // Static routes
   const routes = [

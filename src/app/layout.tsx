@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 const baseUrl = process.env.NODE_ENV === 'development' 
   ? 'http://localhost:3000' 
-  : (process.env.NEXT_PUBLIC_BASE_URL || 'https://oraclepath.com');
+  : (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.oracle-path.com');
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),

@@ -13,4 +13,4 @@ Disallow: /api/
 Disallow: /payment-success
 
 # Sitemap location
-Sitemap: /sitemap.xml 
+Sitemap: https://www.oracle-path.com/sitemap.xml

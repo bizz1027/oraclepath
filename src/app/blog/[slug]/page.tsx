@@ -16,6 +16,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
     keywords: post.seoKeywords,
+    alternates: {
+      canonical: `https://www.oracle-path.com/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.seoTitle || post.title,
       description: post.seoDescription || post.excerpt,
