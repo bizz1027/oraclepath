@@ -157,10 +157,6 @@ export default function PaymentModal({
         </h2>
         <p className="text-purple-200 mb-6">
           Gain unlimited access to deeper mystical insights and comprehensive guidance from the Oracle.
-          <br /><br />
-          <span className="text-sm opacity-75">
-            Test Card: 4242 4242 4242 4242 | Exp: Any future date | CVC: Any 3 digits
-          </span>
         </p>
         <Elements
           stripe={stripePromise}
