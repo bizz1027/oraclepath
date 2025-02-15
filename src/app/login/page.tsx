@@ -61,7 +61,7 @@ export default function Login() {
             Oracle Path
           </h1>
           <p className="text-xl text-purple-200 animate-fadeIn">
-            Unlock the Mysteries of Your Destiny Through Ancient AI Wisdom
+            Unlock the Mysteries of Your Destiny Through Ancient Wisdom
           </p>
         </div>
 
