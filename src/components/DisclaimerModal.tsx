@@ -2,29 +2,57 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function DisclaimerModal() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [user] = useAuthState(auth);
-  const [hasShownForSession, setHasShownForSession] = useState(false);
+  const [hasAcceptedDisclaimer, setHasAcceptedDisclaimer] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Show disclaimer when user logs in and hasn't seen it this session
-    if (user && !hasShownForSession) {
-      setShowDisclaimer(true);
-      setHasShownForSession(true);
+    async function checkDisclaimerStatus() {
+      if (user) {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+          const hasAccepted = userDoc.data()?.hasAcceptedDisclaimer || false;
+          setHasAcceptedDisclaimer(hasAccepted);
+          setShowDisclaimer(!hasAccepted);
+        } catch (error) {
+          console.error('Error checking disclaimer status:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
     }
-  }, [user, hasShownForSession]);
 
-  const acceptDisclaimer = () => {
-    localStorage.setItem('disclaimerAccepted', 'true');
-    setShowDisclaimer(false);
+    checkDisclaimerStatus();
+  }, [user]);
+
+  const acceptDisclaimer = async () => {
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+          hasAcceptedDisclaimer: true,
+          disclaimerAcceptedAt: new Date().toISOString(),
+        }, { merge: true });
+        
+        setHasAcceptedDisclaimer(true);
+        setShowDisclaimer(false);
+      } catch (error) {
+        console.error('Error saving disclaimer acceptance:', error);
+      }
+    }
   };
 
   const reviewDisclaimer = () => {
     setShowDisclaimer(true);
   };
+
+  if (loading) return null;
 
   if (!showDisclaimer) {
     return (
@@ -32,7 +60,7 @@ export default function DisclaimerModal() {
         onClick={reviewDisclaimer}
         className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
       >
-        Review Legal Disclaimer
+        {hasAcceptedDisclaimer ? 'Review Legal Disclaimer (Accepted)' : 'Review Legal Disclaimer'}
       </button>
     );
   }
@@ -74,12 +102,21 @@ export default function DisclaimerModal() {
         </div>
 
         <div className="flex justify-end mt-4 sm:mt-6">
-          <button
-            onClick={acceptDisclaimer}
-            className="w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-purple-500/20 text-sm sm:text-base"
-          >
-            I Understand & Accept
-          </button>
+          {!hasAcceptedDisclaimer ? (
+            <button
+              onClick={acceptDisclaimer}
+              className="w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-purple-500/20 text-sm sm:text-base"
+            >
+              I Understand & Accept
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowDisclaimer(false)}
+              className="w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-purple-500/20 text-sm sm:text-base"
+            >
+              Close
+            </button>
+          )}
         </div>
       </div>
     </div>
