@@ -11,19 +11,19 @@ const baseUrl = process.env.NODE_ENV === 'development'
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Oracle Path - AI-Powered Mystical Guidance',
+    default: 'Oracle Path - Where Mystical Insight Meets Divine Guidance',
     template: '%s | Oracle Path'
   },
-  description: 'Experience personalized spiritual guidance through AI-powered mystical predictions. Receive daily oracle readings and divine insights to illuminate your path forward.',
+  description: 'Experience personalized spiritual guidance through mystical predictions. Receive daily oracle readings and divine insights to illuminate your path forward.',
   keywords: [
-    'AI oracle',
+    'oracle readings',
     'mystical predictions',
     'spiritual guidance',
     'divine insights',
     'daily oracle readings',
     'personalized predictions',
     'mystical wisdom',
-    'AI spiritual guide',
+    'spiritual guide',
     'oracle readings',
     'future insights'
   ],
@@ -40,21 +40,21 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: 'Oracle Path',
-    title: 'Oracle Path - AI-Powered Mystical Guidance',
-    description: 'Experience personalized spiritual guidance through AI-powered mystical predictions. Receive daily oracle readings and divine insights to illuminate your path forward.',
+    title: 'Oracle Path - Where Mystical Insight Meets Divine Guidance',
+    description: 'Experience personalized spiritual guidance through mystical predictions. Receive daily oracle readings and divine insights to illuminate your path forward.',
     images: [
       {
         url: '/og-image.jpg', // Make sure to add this image to your public folder
         width: 1200,
         height: 630,
-        alt: 'Oracle Path - AI-Powered Mystical Guidance',
+        alt: 'Oracle Path - Where Mystical Insight Meets Divine Guidance',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Oracle Path - AI-Powered Mystical Guidance',
-    description: 'Experience personalized spiritual guidance through AI-powered mystical predictions. Receive daily oracle readings and divine insights.',
+    title: 'Oracle Path - Where Mystical Insight Meets Divine Guidance',
+    description: 'Experience personalized spiritual guidance through mystical predictions. Receive daily oracle readings and divine insights.',
     images: ['/twitter-image.jpg'], // Make sure to add this image to your public folder
     creator: '@oraclepath',
   },
