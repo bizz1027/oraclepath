@@ -189,7 +189,7 @@ export default function Home() {
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-purple-900 to-black">
+    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black overflow-auto">
       <main className="min-h-screen text-white p-4 sm:p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-8 space-y-4 sm:space-y-0">
