@@ -24,6 +24,7 @@ export default function TikTokLandingPage() {
       'line',
       'wv', // WebView
       'fb_iab', // Facebook in-app browser
+      'snapchat' // Snapchat in-app browser
     ];
 
     const isInAppBrowser = inAppBrowsers.some(app => userAgent.includes(app));
