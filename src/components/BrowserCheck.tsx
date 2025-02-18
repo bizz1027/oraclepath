@@ -15,12 +15,6 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
     
     if (isTikTok) {
       setBrowserType('TikTok');
-      // Add openInBrowser parameter to trigger TikTok's native dialog
-      if (!window.location.href.includes('openInBrowser')) {
-        window.location.href = window.location.href + 
-          (window.location.href.includes('?') ? '&' : '?') + 
-          'openInBrowser=true';
-      }
     } else if (userAgent.includes('instagram')) {
       setBrowserType('Instagram');
     } else if (userAgent.includes('fban') || userAgent.includes('fbav')) {
@@ -29,10 +23,21 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
   }, []);
 
   const handleOpenInBrowser = () => {
-    const currentUrl = window.location.href;
-    const baseUrl = currentUrl.split('?')[0]; // Remove any existing query parameters
-    const newUrl = baseUrl + '?openInBrowser=true';
-    window.location.href = newUrl;
+    const path = window.location.pathname;
+    const targetUrl = `https://www.oracle-path.com${path}`;
+    
+    // For TikTok, we'll try both methods
+    if (browserType === 'TikTok') {
+      // Method 1: Direct HTTPS URL
+      window.location.href = targetUrl;
+      
+      // Method 2: After a small delay, try the browser scheme
+      setTimeout(() => {
+        window.location.href = `browser://${targetUrl}`;
+      }, 100);
+    } else {
+      window.location.href = targetUrl;
+    }
   };
 
   if (!isInAppBrowser) {
@@ -48,7 +53,7 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
         <div className="bg-purple-900/50 p-6 rounded-lg border border-purple-700/50 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">⚠️ Browser Compatibility Notice</h2>
           <p className="mb-4">
-            For security reasons, please open Oracle Path in your default browser.
+            For security reasons, Google Sign-In is not supported in the TikTok browser.
           </p>
           <button
             onClick={handleOpenInBrowser}
