@@ -15,12 +15,11 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
     
     if (isTikTok) {
       setBrowserType('TikTok');
-      // Immediate redirect for TikTok
-      const targetUrl = window.location.href;
-      if (/iphone|ipad/i.test(userAgent)) {
-        window.location.href = `x-safari-${targetUrl}`;
-      } else if (/android/i.test(userAgent)) {
-        window.location.href = `intent://${targetUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      // Add openInBrowser parameter to trigger TikTok's native dialog
+      if (!window.location.href.includes('openInBrowser')) {
+        window.location.href = window.location.href + 
+          (window.location.href.includes('?') ? '&' : '?') + 
+          'openInBrowser=true';
       }
     } else if (userAgent.includes('instagram')) {
       setBrowserType('Instagram');
@@ -28,6 +27,13 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
       setBrowserType('Facebook');
     }
   }, []);
+
+  const handleOpenInBrowser = () => {
+    const currentUrl = window.location.href;
+    const baseUrl = currentUrl.split('?')[0]; // Remove any existing query parameters
+    const newUrl = baseUrl + '?openInBrowser=true';
+    window.location.href = newUrl;
+  };
 
   if (!isInAppBrowser) {
     return <>{children}</>;
@@ -42,11 +48,18 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
         <div className="bg-purple-900/50 p-6 rounded-lg border border-purple-700/50 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">⚠️ Browser Compatibility Notice</h2>
           <p className="mb-4">
-            For the best experience, please open Oracle Path in your default browser.
+            For security reasons, please open Oracle Path in your default browser.
           </p>
+          <button
+            onClick={handleOpenInBrowser}
+            className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2 mb-4"
+          >
+            <span>🌐</span>
+            <span>Open in Browser</span>
+          </button>
           {browserType === 'TikTok' && (
             <div className="text-sm text-purple-300 space-y-2">
-              <p>To continue:</p>
+              <p>If the button doesn't work:</p>
               <ol className="text-left space-y-1 pl-4">
                 <li>1. Tap the three dots (...) in the top right</li>
                 <li>2. Select "Open in browser"</li>
