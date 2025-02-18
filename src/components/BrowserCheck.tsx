@@ -5,81 +5,33 @@ import { useEffect, useState } from 'react';
 export default function BrowserCheck({ children }: { children: React.ReactNode }) {
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
   const [browserType, setBrowserType] = useState<string>('');
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent.toLowerCase();
+    const isTikTok = userAgent.includes('tiktok');
+    const isInApp = isTikTok || userAgent.includes('instagram') || userAgent.includes('fban') || userAgent.includes('fbav');
     
-    // List of in-app browser identifiers
-    const inAppBrowsers = [
-      'tiktok',
-      'instagram',
-      'fban', // Facebook App
-      'fbav', // Facebook App
-      'line',
-      'wv', // WebView
-      'fb_iab', // Facebook in-app browser
-      'linkedinapp'
-    ];
-
-    const isInApp = inAppBrowsers.some(app => userAgent.includes(app));
-    const isMobile = /iphone|ipad|android/i.test(userAgent);
-
     setIsInAppBrowser(isInApp);
-    setIsMobileDevice(isMobile);
-
-    // Set browser type for UI messaging
-    if (userAgent.includes('tiktok')) {
+    
+    if (isTikTok) {
       setBrowserType('TikTok');
+      // Immediate redirect for TikTok
+      const targetUrl = window.location.href;
+      if (/iphone|ipad/i.test(userAgent)) {
+        window.location.href = `x-safari-${targetUrl}`;
+      } else if (/android/i.test(userAgent)) {
+        window.location.href = `intent://${targetUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      }
     } else if (userAgent.includes('instagram')) {
       setBrowserType('Instagram');
     } else if (userAgent.includes('fban') || userAgent.includes('fbav')) {
       setBrowserType('Facebook');
-    } else if (userAgent.includes('twitter')) {
-      setBrowserType('Twitter');
-    } else if (userAgent.includes('linkedinapp')) {
-      setBrowserType('LinkedIn');
-    }
-
-    // Handle immediate redirect for non-TikTok in-app browsers
-    if (isMobile && isInApp && !userAgent.includes('tiktok')) {
-      const targetUrl = 'https://www.oracle-path.com' + window.location.pathname;
-      
-      // For iOS devices
-      if (/iphone|ipad/i.test(userAgent)) {
-        window.location.href = 'x-safari-' + targetUrl;
-        return;
-      }
-      
-      // For Android devices
-      if (/android/i.test(userAgent)) {
-        window.location.href = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-        return;
-      }
     }
   }, []);
 
-  if (!isInAppBrowser || !isMobileDevice) {
+  if (!isInAppBrowser) {
     return <>{children}</>;
   }
-
-  const handleOpenInBrowser = () => {
-    const targetUrl = 'https://www.oracle-path.com' + window.location.pathname;
-    
-    if (browserType === 'TikTok') {
-      // For TikTok, try to trigger their native "open in browser" dialog
-      window.location.href = 'https://www.oracle-path.com' + window.location.pathname + '?openInBrowser=true';
-    } else if (/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase())) {
-      // iOS devices
-      window.location.href = 'x-safari-' + targetUrl;
-    } else if (/android/i.test(window.navigator.userAgent.toLowerCase())) {
-      // Android devices
-      window.location.href = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-    } else {
-      // Fallback for other devices
-      window.location.href = targetUrl;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-4">
@@ -90,29 +42,17 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
         <div className="bg-purple-900/50 p-6 rounded-lg border border-purple-700/50 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">⚠️ Browser Compatibility Notice</h2>
           <p className="mb-4">
-            For security reasons, Google Sign-In is not supported in the {browserType} in-app browser.
+            For the best experience, please open Oracle Path in your default browser.
           </p>
-          <p className="mb-6">
-            Please open Oracle Path in your default browser ({/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase()) ? 'Safari' : 'Chrome'}) to access all features:
-          </p>
-          <div className="space-y-4">
-            <button
-              onClick={handleOpenInBrowser}
-              className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2"
-            >
-              <span>🌐</span>
-              <span>Open in Browser</span>
-            </button>
-            {browserType === 'TikTok' && (
-              <div className="text-sm text-purple-300 space-y-2">
-                <p>If the button doesn't work:</p>
-                <ol className="text-left space-y-1 pl-4">
-                  <li>1. Tap the three dots (...) in the top right</li>
-                  <li>2. Select "Open in browser"</li>
-                </ol>
-              </div>
-            )}
-          </div>
+          {browserType === 'TikTok' && (
+            <div className="text-sm text-purple-300 space-y-2">
+              <p>To continue:</p>
+              <ol className="text-left space-y-1 pl-4">
+                <li>1. Tap the three dots (...) in the top right</li>
+                <li>2. Select "Open in browser"</li>
+              </ol>
+            </div>
+          )}
         </div>
       </div>
     </div>
