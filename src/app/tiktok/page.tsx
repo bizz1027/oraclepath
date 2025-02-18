@@ -13,6 +13,16 @@ export default function TikTokLandingPage() {
     setIsMounted(true);
     const userAgent = window.navigator.userAgent.toLowerCase();
     setIsIOS(/iphone|ipad|ipod/.test(userAgent));
+
+    // Automatic redirect for Messenger
+    if (userAgent.includes('messenger') || userAgent.includes('fbav')) {
+      const targetUrl = window.location.href.replace('/tiktok', '/login');
+      if (isIOS) {
+        window.location.href = `x-safari-${targetUrl}`;
+      } else {
+        window.location.href = `intent://${targetUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      }
+    }
   }, []);
 
   const handleContinue = () => {
