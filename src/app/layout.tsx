@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Script from 'next/script';
+import BrowserCheck from '../components/BrowserCheck';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -85,25 +85,10 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href={baseUrl} />
         <meta name="theme-color" content="#2D1B69" />
-        <Script id="browser-check" strategy="beforeInteractive">
-          {`
-            function isTikTokBrowser() {
-              return navigator.userAgent.toLowerCase().includes('tiktok');
-            }
-
-            if (isTikTokBrowser()) {
-              document.addEventListener('DOMContentLoaded', function() {
-                const banner = document.createElement('div');
-                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#2D1B69;color:white;padding:12px;text-align:center;z-index:9999;font-size:14px;';
-                banner.innerHTML = '⚠️ For the best experience, please open this site in your default browser (Safari/Chrome)';
-                document.body.prepend(banner);
-                document.body.style.paddingTop = '40px';
-              });
-            }
-          `}
-        </Script>
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <BrowserCheck>{children}</BrowserCheck>
+      </body>
     </html>
   );
 } 
