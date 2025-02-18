@@ -1,16 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function TikTokLandingPage() {
   const [isIOS, setIsIOS] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
     const userAgent = window.navigator.userAgent.toLowerCase();
     setIsIOS(/iphone|ipad|ipod/.test(userAgent));
-  }, []);
+
+    // If not in TikTok's browser, redirect to login
+    if (!userAgent.includes('tiktok')) {
+      router.replace('/login');
+    }
+  }, [router]);
 
   if (!isMounted) {
     return (
