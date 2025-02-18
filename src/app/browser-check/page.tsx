@@ -5,13 +5,24 @@ import { useSearchParams } from 'next/navigation';
 
 export default function BrowserCheckPage() {
   const [isIOS, setIsIOS] = useState(false);
-  const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/';
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const userAgent = window.navigator.userAgent.toLowerCase();
     setIsIOS(/iphone|ipad|ipod/.test(userAgent));
   }, []);
+
+  // Don't render anything until client-side
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-4">
+        <div className="max-w-md mx-auto pt-12 text-center">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-4">

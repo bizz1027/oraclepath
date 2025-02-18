@@ -89,12 +89,18 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var userAgent = window.navigator.userAgent.toLowerCase();
-                if (userAgent.includes('tiktok')) {
-                  var currentUrl = window.location.href;
-                  if (currentUrl.includes('/login')) {
-                    window.location.href = '/browser-check?redirect=' + encodeURIComponent(currentUrl);
+                try {
+                  if (typeof window !== 'undefined') {
+                    var userAgent = window.navigator.userAgent.toLowerCase();
+                    if (userAgent.includes('tiktok')) {
+                      var currentPath = window.location.pathname;
+                      if (currentPath === '/' || currentPath === '/login') {
+                        window.location.href = '/browser-check';
+                      }
+                    }
                   }
+                } catch (e) {
+                  console.error('Browser detection error:', e);
                 }
               })();
             `,
