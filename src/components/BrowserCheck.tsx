@@ -26,7 +26,30 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
     return <>{children}</>;
   }
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const handleOpenInBrowser = () => {
+    // Get the current path or default to root
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+    
+    // Construct the URL with the current path
+    const url = `https://www.oracle-path.com${currentPath}`;
+    
+    // Try multiple approaches to open in default browser
+    if (browserType === 'TikTok') {
+      // For TikTok, we'll try to use their specific scheme
+      window.location.href = `browser://${url}`;
+      
+      // Fallback after a short delay if the above doesn't work
+      setTimeout(() => {
+        window.open(url, '_system');
+        // Final fallback
+        window.location.href = url;
+      }, 100);
+    } else {
+      // For other browsers, try standard approaches
+      window.open(url, '_system');
+      window.location.href = url;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-4">
@@ -44,11 +67,7 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
           </p>
           <div className="space-y-4">
             <button
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  window.location.href = `https://www.oracle-path.com${window.location.pathname}`;
-                }
-              }}
+              onClick={handleOpenInBrowser}
               className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2"
             >
               <span>🌐</span>
