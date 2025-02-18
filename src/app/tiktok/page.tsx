@@ -14,13 +14,35 @@ export default function TikTokLandingPage() {
     const userAgent = window.navigator.userAgent.toLowerCase();
     setIsIOS(/iphone|ipad|ipod/.test(userAgent));
 
-    // Automatic redirect for Messenger
-    if (userAgent.includes('messenger') || userAgent.includes('fbav')) {
+    // List of in-app browser identifiers (excluding TikTok)
+    const inAppBrowsers = [
+      'linkedinapp',
+      'fban', // Facebook App
+      'fbav', // Facebook App
+      'messenger',
+      'instagram',
+      'line',
+      'wv', // WebView
+      'fb_iab', // Facebook in-app browser
+    ];
+
+    const isInAppBrowser = inAppBrowsers.some(app => userAgent.includes(app));
+    const isMobileDevice = /iphone|ipad|android/i.test(userAgent);
+
+    // Automatic redirect for all in-app browsers except TikTok
+    if (isMobileDevice && isInAppBrowser) {
       const targetUrl = window.location.href.replace('/tiktok', '/login');
-      if (isIOS) {
-        window.location.href = `x-safari-${targetUrl}`;
-      } else {
-        window.location.href = `intent://${targetUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      
+      // For iOS devices
+      if (/iphone|ipad/i.test(userAgent)) {
+        window.location.href = 'x-safari-' + targetUrl;
+        return;
+      }
+      
+      // For Android devices
+      if (/android/i.test(userAgent)) {
+        window.location.href = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+        return;
       }
     }
   }, []);
