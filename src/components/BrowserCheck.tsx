@@ -41,30 +41,17 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
       setBrowserType('LinkedIn');
     }
 
-    // Handle immediate redirect for in-app browsers
-    if (isMobile && isInApp) {
-      const currentUrl = window.location.href;
+    // Handle immediate redirect for non-TikTok in-app browsers
+    if (isMobile && isInApp && !userAgent.includes('tiktok')) {
       const targetUrl = 'https://www.oracle-path.com' + window.location.pathname;
       
-      // Special handling for TikTok
-      if (userAgent.includes('tiktok')) {
-        // If we're on TikTok's redirect page, use their native "open" functionality
-        if (currentUrl.includes('oracle-path.com/login')) {
-          // The button click will handle it
-          return;
-        }
-        // Otherwise, try direct redirect
-        window.location.href = targetUrl;
-        return;
-      }
-
-      // For iOS devices (non-TikTok)
+      // For iOS devices
       if (/iphone|ipad/i.test(userAgent)) {
         window.location.href = 'x-safari-' + targetUrl;
         return;
       }
       
-      // For Android devices (non-TikTok)
+      // For Android devices
       if (/android/i.test(userAgent)) {
         window.location.href = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
         return;
@@ -80,8 +67,8 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
     const targetUrl = 'https://www.oracle-path.com' + window.location.pathname;
     
     if (browserType === 'TikTok') {
-      // For TikTok, we'll use their expected format
-      window.location.href = targetUrl;
+      // For TikTok, try to trigger their native "open in browser" dialog
+      window.location.href = 'https://www.oracle-path.com' + window.location.pathname + '?openInBrowser=true';
     } else if (/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase())) {
       // iOS devices
       window.location.href = 'x-safari-' + targetUrl;
@@ -114,14 +101,14 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
               className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2"
             >
               <span>🌐</span>
-              <span>Open in Default Browser</span>
+              <span>Open in Browser</span>
             </button>
             {browserType === 'TikTok' && (
               <div className="text-sm text-purple-300 space-y-2">
                 <p>If the button doesn't work:</p>
                 <ol className="text-left space-y-1 pl-4">
-                  <li>1. Tap "Öppna" when prompted</li>
-                  <li>2. Select your default browser when asked</li>
+                  <li>1. Tap the three dots (...) in the top right</li>
+                  <li>2. Select "Open in browser"</li>
                 </ol>
               </div>
             )}
