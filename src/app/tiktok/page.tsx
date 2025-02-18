@@ -6,18 +6,21 @@ import { useRouter } from 'next/navigation';
 export default function TikTokLandingPage() {
   const [isIOS, setIsIOS] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isInTikTok, setIsInTikTok] = useState(true);
+  const [showContinueButton, setShowContinueButton] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
     const userAgent = window.navigator.userAgent.toLowerCase();
     setIsIOS(/iphone|ipad|ipod/.test(userAgent));
-    setIsInTikTok(userAgent.includes('tiktok'));
   }, []);
 
   const handleContinue = () => {
     router.push('/login');
+  };
+
+  const handleOpenBrowser = () => {
+    setShowContinueButton(true);
   };
 
   if (!isMounted) {
@@ -44,7 +47,7 @@ export default function TikTokLandingPage() {
             </p>
           </div>
 
-          {isInTikTok ? (
+          {!showContinueButton ? (
             <>
               <div className="bg-purple-800/30 p-4 rounded-lg border border-purple-600/30">
                 <p className="font-medium mb-3">To begin your journey:</p>
@@ -65,10 +68,17 @@ export default function TikTokLandingPage() {
                   )}
                   <li className="flex items-start">
                     <span className="mr-2">{isIOS ? "4" : "3"}.</span>
-                    <span>Once in your browser, tap the <strong>"Continue to Login"</strong> button that appears</span>
+                    <span>After opening in your browser, click the <strong>"I'm in {isIOS ? 'Safari' : 'Chrome'} Now"</strong> button below</span>
                   </li>
                 </ol>
               </div>
+
+              <button
+                onClick={handleOpenBrowser}
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <span>I'm in {isIOS ? 'Safari' : 'Chrome'} Now</span>
+              </button>
 
               <div className="space-y-2">
                 <p className="text-sm text-purple-300">
@@ -89,7 +99,7 @@ export default function TikTokLandingPage() {
             <div className="space-y-6">
               <div className="bg-purple-800/30 p-4 rounded-lg border border-purple-600/30">
                 <p className="text-purple-200">
-                  Perfect! You're now in your default browser. Click below to continue to login:
+                  Perfect! You're now ready to begin your mystical journey. Click below to continue to login:
                 </p>
               </div>
               
