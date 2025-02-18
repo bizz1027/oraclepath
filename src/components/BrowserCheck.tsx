@@ -5,48 +5,75 @@ import { useEffect, useState } from 'react';
 export default function BrowserCheck({ children }: { children: React.ReactNode }) {
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
   const [browserType, setBrowserType] = useState<string>('');
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isInApp = /tiktok|instagram|facebook|fbios|twitter|line|wv|micromessenger/.test(userAgent);
-    setIsInAppBrowser(isInApp);
+    
+    // List of in-app browser identifiers
+    const inAppBrowsers = [
+      'tiktok',
+      'instagram',
+      'fban', // Facebook App
+      'fbav', // Facebook App
+      'line',
+      'wv', // WebView
+      'fb_iab', // Facebook in-app browser
+      'linkedinapp'
+    ];
 
+    const isInApp = inAppBrowsers.some(app => userAgent.includes(app));
+    const isMobile = /iphone|ipad|android/i.test(userAgent);
+
+    setIsInAppBrowser(isInApp);
+    setIsMobileDevice(isMobile);
+
+    // Set browser type for UI messaging
     if (userAgent.includes('tiktok')) {
       setBrowserType('TikTok');
     } else if (userAgent.includes('instagram')) {
       setBrowserType('Instagram');
-    } else if (userAgent.includes('facebook') || userAgent.includes('fbios')) {
+    } else if (userAgent.includes('fban') || userAgent.includes('fbav')) {
       setBrowserType('Facebook');
     } else if (userAgent.includes('twitter')) {
       setBrowserType('Twitter');
+    } else if (userAgent.includes('linkedinapp')) {
+      setBrowserType('LinkedIn');
+    }
+
+    // Immediate redirect for in-app browsers
+    if (isMobile && isInApp) {
+      const url = window.location.href;
+      
+      // For iOS devices
+      if (/iphone|ipad/i.test(userAgent)) {
+        window.location.href = 'x-safari-' + url;
+        return;
+      }
+      
+      // For Android devices
+      if (/android/i.test(userAgent)) {
+        window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+        return;
+      }
     }
   }, []);
 
-  if (!isInAppBrowser) {
+  if (!isInAppBrowser || !isMobileDevice) {
     return <>{children}</>;
   }
 
   const handleOpenInBrowser = () => {
-    // Get the current path or default to root
-    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+    const url = window.location.href;
     
-    // Construct the URL with the current path
-    const url = `https://www.oracle-path.com${currentPath}`;
-    
-    // Try multiple approaches to open in default browser
-    if (browserType === 'TikTok') {
-      // For TikTok, we'll try to use their specific scheme
-      window.location.href = `browser://${url}`;
-      
-      // Fallback after a short delay if the above doesn't work
-      setTimeout(() => {
-        window.open(url, '_system');
-        // Final fallback
-        window.location.href = url;
-      }, 100);
+    if (/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase())) {
+      // iOS devices
+      window.location.href = 'x-safari-' + url;
+    } else if (/android/i.test(window.navigator.userAgent.toLowerCase())) {
+      // Android devices
+      window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
     } else {
-      // For other browsers, try standard approaches
-      window.open(url, '_system');
+      // Fallback for other devices
       window.location.href = url;
     }
   };
@@ -63,7 +90,7 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
             For security reasons, Google Sign-In is not supported in the {browserType} in-app browser.
           </p>
           <p className="mb-6">
-            Please open Oracle Path in your default browser (Safari/Chrome) to access all features:
+            Please open Oracle Path in your default browser ({/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase()) ? 'Safari' : 'Chrome'}) to access all features:
           </p>
           <div className="space-y-4">
             <button
@@ -73,9 +100,9 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
               <span>🌐</span>
               <span>Open in Default Browser</span>
             </button>
-            {browserType === 'TikTok' && (
+            {browserType && (
               <div className="text-sm text-purple-300 space-y-2">
-                <p>How to open in your browser:</p>
+                <p>If the button doesn't work:</p>
                 <ol className="text-left space-y-1 pl-4">
                   <li>1. Tap the ••• menu in the top right</li>
                   <li>2. Select "Open in browser"</li>
