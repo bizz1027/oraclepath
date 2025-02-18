@@ -85,6 +85,21 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href={baseUrl} />
         <meta name="theme-color" content="#2D1B69" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var userAgent = window.navigator.userAgent.toLowerCase();
+                if (userAgent.includes('tiktok')) {
+                  var currentUrl = window.location.href;
+                  if (currentUrl.includes('/login')) {
+                    window.location.href = '/browser-check?redirect=' + encodeURIComponent(currentUrl);
+                  }
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <BrowserCheck>{children}</BrowserCheck>
