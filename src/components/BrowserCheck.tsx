@@ -41,19 +41,32 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
       setBrowserType('LinkedIn');
     }
 
-    // Immediate redirect for in-app browsers
+    // Handle immediate redirect for in-app browsers
     if (isMobile && isInApp) {
-      const url = window.location.href;
+      const currentUrl = window.location.href;
+      const targetUrl = 'https://www.oracle-path.com' + window.location.pathname;
       
-      // For iOS devices
+      // Special handling for TikTok
+      if (userAgent.includes('tiktok')) {
+        // If we're on TikTok's redirect page, use their native "open" functionality
+        if (currentUrl.includes('oracle-path.com/login')) {
+          // The button click will handle it
+          return;
+        }
+        // Otherwise, try direct redirect
+        window.location.href = targetUrl;
+        return;
+      }
+
+      // For iOS devices (non-TikTok)
       if (/iphone|ipad/i.test(userAgent)) {
-        window.location.href = 'x-safari-' + url;
+        window.location.href = 'x-safari-' + targetUrl;
         return;
       }
       
-      // For Android devices
+      // For Android devices (non-TikTok)
       if (/android/i.test(userAgent)) {
-        window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+        window.location.href = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
         return;
       }
     }
@@ -64,17 +77,20 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
   }
 
   const handleOpenInBrowser = () => {
-    const url = window.location.href;
+    const targetUrl = 'https://www.oracle-path.com' + window.location.pathname;
     
-    if (/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase())) {
+    if (browserType === 'TikTok') {
+      // For TikTok, we'll use their expected format
+      window.location.href = targetUrl;
+    } else if (/iphone|ipad/i.test(window.navigator.userAgent.toLowerCase())) {
       // iOS devices
-      window.location.href = 'x-safari-' + url;
+      window.location.href = 'x-safari-' + targetUrl;
     } else if (/android/i.test(window.navigator.userAgent.toLowerCase())) {
       // Android devices
-      window.location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+      window.location.href = 'intent://' + targetUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
     } else {
       // Fallback for other devices
-      window.location.href = url;
+      window.location.href = targetUrl;
     }
   };
 
@@ -100,12 +116,12 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
               <span>🌐</span>
               <span>Open in Default Browser</span>
             </button>
-            {browserType && (
+            {browserType === 'TikTok' && (
               <div className="text-sm text-purple-300 space-y-2">
                 <p>If the button doesn't work:</p>
                 <ol className="text-left space-y-1 pl-4">
-                  <li>1. Tap the ••• menu in the top right</li>
-                  <li>2. Select "Open in browser"</li>
+                  <li>1. Tap "Öppna" when prompted</li>
+                  <li>2. Select your default browser when asked</li>
                 </ol>
               </div>
             )}
