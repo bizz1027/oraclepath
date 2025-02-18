@@ -5,13 +5,16 @@ import { useEffect, useState } from 'react';
 export default function BrowserCheck({ children }: { children: React.ReactNode }) {
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
   const [browserType, setBrowserType] = useState<string>('');
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isTikTok = userAgent.includes('tiktok');
     const isInApp = isTikTok || userAgent.includes('instagram') || userAgent.includes('fban') || userAgent.includes('fbav');
+    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
     
     setIsInAppBrowser(isInApp);
+    setIsIOS(isIOSDevice);
     
     if (isTikTok) {
       setBrowserType('TikTok');
@@ -21,24 +24,6 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
       setBrowserType('Facebook');
     }
   }, []);
-
-  const handleOpenInBrowser = () => {
-    const path = window.location.pathname;
-    const targetUrl = `https://www.oracle-path.com${path}`;
-    
-    // For TikTok, we'll try both methods
-    if (browserType === 'TikTok') {
-      // Method 1: Direct HTTPS URL
-      window.location.href = targetUrl;
-      
-      // Method 2: After a small delay, try the browser scheme
-      setTimeout(() => {
-        window.location.href = `browser://${targetUrl}`;
-      }, 100);
-    } else {
-      window.location.href = targetUrl;
-    }
-  };
 
   if (!isInAppBrowser) {
     return <>{children}</>;
@@ -51,24 +36,34 @@ export default function BrowserCheck({ children }: { children: React.ReactNode }
           🔮 Oracle Path
         </h1>
         <div className="bg-purple-900/50 p-6 rounded-lg border border-purple-700/50 backdrop-blur-sm">
-          <h2 className="text-xl font-semibold mb-4">⚠️ Browser Compatibility Notice</h2>
-          <p className="mb-4">
-            For security reasons, Google Sign-In is not supported in the TikTok browser.
+          <h2 className="text-xl font-semibold mb-4">⚠️ Please Open in {isIOS ? 'Safari' : 'Chrome'}</h2>
+          <p className="mb-6 text-purple-200">
+            For security reasons, you need to open Oracle Path in your default browser to continue.
           </p>
-          <button
-            onClick={handleOpenInBrowser}
-            className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2 mb-4"
-          >
-            <span>🌐</span>
-            <span>Open in Browser</span>
-          </button>
           {browserType === 'TikTok' && (
-            <div className="text-sm text-purple-300 space-y-2">
-              <p>If the button doesn't work:</p>
-              <ol className="text-left space-y-1 pl-4">
-                <li>1. Tap the three dots (...) in the top right</li>
-                <li>2. Select "Open in browser"</li>
-              </ol>
+            <div className="space-y-4">
+              <div className="bg-purple-800/30 p-4 rounded-lg border border-purple-600/30">
+                <p className="font-medium mb-3">How to open in {isIOS ? 'Safari' : 'Chrome'}:</p>
+                <ol className="text-left space-y-2 text-purple-200">
+                  <li className="flex items-start">
+                    <span className="mr-2">1.</span>
+                    <span>Tap the <strong>three dots (...)</strong> in the top right corner</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">2.</span>
+                    <span>Select <strong>"Open in browser"</strong> from the menu</span>
+                  </li>
+                  {isIOS && (
+                    <li className="flex items-start">
+                      <span className="mr-2">3.</span>
+                      <span>If prompted, choose <strong>"Open in Safari"</strong></span>
+                    </li>
+                  )}
+                </ol>
+              </div>
+              <div className="text-sm text-purple-300">
+                This step is required to enable secure Google Sign-In.
+              </div>
             </div>
           )}
         </div>
