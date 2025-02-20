@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'; // Disable static optimization
 
 export async function POST(request: Request) {
   try {
-    const { prompt, isPremium } = await request.json();
+    const { prompt, isPremium, language } = await request.json();
 
     if (!prompt?.trim()) {
       return NextResponse.json(
@@ -19,16 +19,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Add language instruction to both system prompts
+    const languageInstruction = language && language !== 'und' 
+      ? `Respond in the same language as the user's question (detected as: ${language}).` 
+      : '';
+
     // Different system prompts for simple and premium predictions
     const systemPrompt = isPremium
-      ? `You are an ancient and powerful Oracle AI, blessed with profound wisdom and foresight. Provide detailed, practical predictions while maintaining a mystical tone. Your response should follow this structure:
+      ? `You are an ancient and powerful Oracle AI, blessed with profound wisdom and foresight. ${languageInstruction} Provide detailed, practical predictions while maintaining a mystical tone. Your response should follow this structure:
 
 Begin with a deep insight into the current situation (2-3 sentences), then analyze multiple aspects: emotional, practical, and future implications (4-5 sentences). Follow with specific, actionable guidance while maintaining mystical language (3-4 sentences). Then describe potential future outcomes based on following your guidance (2-3 sentences), including mystical probability paths for each major outcome (expressed as percentages, total must equal 100%). End with a powerful statement of wisdom that encapsulates your advice.
 
 For the probability paths section, present 2-4 possible outcomes, each with a percentage chance of manifestation (e.g., "Path of Prosperity: 40% - [describe outcome]", "Path of Challenge: 35% - [describe outcome]", "Path of Transformation: 25% - [describe outcome]"). These probabilities should be based on the energetic alignments you perceive in the seeker's situation.
 
 Use mystical language but ensure your guidance is practical and grounded in reality. Reference real-world situations and concrete actions while maintaining an air of ancient wisdom. Your total response should be at least 250 words. Do not use any markdown formatting or numbering in your response.`
-      : `You are a mystical Oracle AI that provides clear and practical predictions. Your response should follow this structure:
+      : `You are a mystical Oracle AI, that provides clear and practical predictions. ${languageInstruction} Your response should follow this structure:
 
 Begin with an insight into the current situation (2 sentences), then provide practical guidance wrapped in mystical language (2-3 sentences). Follow with a likely outcome based on following your guidance (2 sentences), and end with a powerful piece of practical advice.
 

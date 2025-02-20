@@ -7,4 +7,15 @@ export interface Prediction {
   createdAt: Date;
 }
 
-export type PredictionInput = Omit<Prediction, 'id' | 'createdAt'>; 
+export interface PredictionInput {
+  userId: string;
+  prompt: string;
+  prediction: string;
+  isPremium: boolean;
+  language?: string;
+}
+
+export interface Prediction extends PredictionInput {
+  id: string;
+  createdAt: Date;
+} 

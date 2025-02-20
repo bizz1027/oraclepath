@@ -12,6 +12,7 @@ import PaymentModal from '../components/PaymentModal';
 import DisclaimerModal from '../components/DisclaimerModal';
 import PrivacyPolicy from '../components/PrivacyPolicy';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { franc } from 'franc';
 
 export default function Home() {
   const [user, loading] = useAuthState(auth);
@@ -139,10 +140,17 @@ export default function Home() {
         }
       }
 
+      // Detect the language of the prompt
+      const detectedLang = franc(prompt);
+
       const response = await fetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, isPremium }),
+        body: JSON.stringify({ 
+          prompt, 
+          isPremium,
+          language: detectedLang // Add detected language to the request
+        }),
       });
 
       const data = await response.json();
@@ -157,6 +165,7 @@ export default function Home() {
             prompt,
             prediction: data.prediction,
             isPremium,
+            language: detectedLang // Save the language with the prediction
           });
 
           // Increment usage for free predictions only
