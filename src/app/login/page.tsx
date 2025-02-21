@@ -68,7 +68,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-900 to-black p-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black p-4 relative overflow-hidden">
+      {/* Full screen gradient background with safe area handling */}
+      <div className="fixed inset-0 bg-gradient-to-b from-purple-900 to-black" />
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl top-0 -left-64 animate-blob1"></div>
