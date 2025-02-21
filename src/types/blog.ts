@@ -1,3 +1,13 @@
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface FAQSection {
+  title: string;
+  items: FAQItem[];
+}
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -11,4 +21,5 @@ export interface BlogPost {
   seoTitle: string;
   seoDescription: string;
   seoKeywords: string[];
+  faqs?: FAQSection[]; // Optional array of FAQ sections
 } 

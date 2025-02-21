@@ -141,8 +141,14 @@ export default function Home() {
         }
       }
 
-      // Detect the language of the prompt
-      const detectedLang = franc(prompt);
+      // Detect the language of the prompt with improved handling
+      const detectedLang = franc(prompt, {
+        minLength: 1,
+        only: ['eng', 'swe', 'nor', 'dan', 'fin', 'ice', 'est', 'lav', 'lit', 'ger', 'fra', 'spa', 'ita', 'por', 'rus', 'pol', 'ukr', 'hun', 'ces', 'slk', 'hrv', 'srp', 'bos', 'slv', 'bul', 'ron', 'ell', 'tur', 'ara', 'heb', 'fas', 'hin', 'ben', 'tam', 'tel', 'mar', 'urd', 'tha', 'vie', 'ind', 'msa', 'jpn', 'kor', 'cmn', 'yue', 'wuu']
+      });
+      
+      // If the text is too short or language detection is uncertain, default to English
+      const language = !detectedLang || detectedLang === 'und' || prompt.length < 10 ? 'eng' : detectedLang;
 
       const response = await fetch('/api/predict', {
         method: 'POST',
@@ -150,7 +156,8 @@ export default function Home() {
         body: JSON.stringify({ 
           prompt, 
           isPremium,
-          language: detectedLang // Add detected language to the request
+          language,
+          readingType
         }),
       });
 
@@ -166,7 +173,8 @@ export default function Home() {
             prompt,
             prediction: data.prediction,
             isPremium,
-            language: detectedLang // Save the language with the prediction
+            language,
+            readingType
           });
 
           // Increment usage for free predictions only

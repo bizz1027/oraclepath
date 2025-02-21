@@ -13,6 +13,7 @@ export interface PredictionInput {
   prediction: string;
   isPremium: boolean;
   language?: string;
+  readingType?: 'mystic' | 'tarot';
 }
 
 export interface Prediction extends PredictionInput {

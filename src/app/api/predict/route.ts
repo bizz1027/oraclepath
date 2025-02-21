@@ -20,9 +20,57 @@ export async function POST(request: Request) {
     }
 
     // Add language instruction to both system prompts
-    const languageInstruction = language && language !== 'und' 
-      ? `Respond in the same language as the user's question (detected as: ${language}).` 
-      : '';
+    const languageMap: { [key: string]: string } = {
+      'swe': 'Swedish',
+      'nor': 'Norwegian',
+      'dan': 'Danish',
+      'fin': 'Finnish',
+      'ice': 'Icelandic',
+      'est': 'Estonian',
+      'lav': 'Latvian',
+      'lit': 'Lithuanian',
+      'ger': 'German',
+      'fra': 'French',
+      'spa': 'Spanish',
+      'ita': 'Italian',
+      'por': 'Portuguese',
+      'rus': 'Russian',
+      'pol': 'Polish',
+      'ukr': 'Ukrainian',
+      'hun': 'Hungarian',
+      'ces': 'Czech',
+      'slk': 'Slovak',
+      'hrv': 'Croatian',
+      'srp': 'Serbian',
+      'bos': 'Bosnian',
+      'slv': 'Slovenian',
+      'bul': 'Bulgarian',
+      'ron': 'Romanian',
+      'ell': 'Greek',
+      'tur': 'Turkish',
+      'ara': 'Arabic',
+      'heb': 'Hebrew',
+      'fas': 'Persian',
+      'hin': 'Hindi',
+      'ben': 'Bengali',
+      'tam': 'Tamil',
+      'tel': 'Telugu',
+      'mar': 'Marathi',
+      'urd': 'Urdu',
+      'tha': 'Thai',
+      'vie': 'Vietnamese',
+      'ind': 'Indonesian',
+      'msa': 'Malay',
+      'jpn': 'Japanese',
+      'kor': 'Korean',
+      'cmn': 'Mandarin Chinese',
+      'yue': 'Cantonese',
+      'wuu': 'Wu Chinese'
+    };
+
+    const languageInstruction = language && language !== 'und' && language !== 'eng'
+      ? `Respond in ${languageMap[language] || language}. Make sure to use proper grammar, characters, and writing system specific to ${languageMap[language] || language}.` 
+      : 'Respond in English.';
 
     // Different system prompts for simple and premium predictions
     const systemPrompt = isPremium
