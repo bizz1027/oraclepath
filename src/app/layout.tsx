@@ -85,6 +85,7 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href={baseUrl} />
         <meta name="theme-color" content="#2D1B69" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
