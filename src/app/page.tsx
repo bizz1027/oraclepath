@@ -21,6 +21,7 @@ export default function Home() {
   const [prediction, setPrediction] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [readingType, setReadingType] = useState<'mystic' | 'tarot'>('mystic');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
   const [remainingPredictions, setRemainingPredictions] = useState<number>(5);
@@ -288,18 +289,37 @@ export default function Home() {
 
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => setIsPremium(false)}
+                onClick={() => {
+                  setIsPremium(false);
+                  setReadingType('mystic');
+                }}
                 className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
-                  !isPremium
+                  !isPremium && readingType === 'mystic'
                     ? 'bg-purple-600 text-white'
                     : 'bg-purple-900 text-purple-300'
                 }`}
               >
                 Mystic Vision
               </button>
+              <button
+                onClick={() => {
+                  setIsPremium(false);
+                  setReadingType('tarot');
+                }}
+                className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
+                  !isPremium && readingType === 'tarot'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-purple-900 text-purple-300'
+                }`}
+              >
+                Tarot Reading
+              </button>
               {hasPremiumAccess && (
                 <button
-                  onClick={() => setIsPremium(true)}
+                  onClick={() => {
+                    setIsPremium(true);
+                    setReadingType('mystic');
+                  }}
                   className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
                     isPremium
                       ? 'bg-purple-600 text-white'
@@ -312,7 +332,7 @@ export default function Home() {
             </div>
             {!isPremium && (
               <div className="text-xs sm:text-sm text-purple-300">
-                {remainingPredictions} Mystic Visions remaining today
+                {remainingPredictions} {readingType === 'mystic' ? 'Mystic Visions' : 'Tarot Readings'} remaining today
               </div>
             )}
           </div>
@@ -322,7 +342,9 @@ export default function Home() {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Share your question with the Oracle... Let your thoughts flow freely, and the ancient wisdom shall guide you."
+                placeholder={readingType === 'mystic' 
+                  ? "Share your question with the Oracle... Let your thoughts flow freely, and the ancient wisdom shall guide you."
+                  : "Ask the cards about your situation... The ancient tarot deck awaits to reveal its wisdom."}
                 className="w-full h-32 sm:h-40 p-4 rounded-lg bg-purple-900/50 text-white placeholder-purple-300 border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 hover:bg-purple-900/60 focus:bg-purple-900/70 backdrop-blur-sm text-sm sm:text-base"
                 required
               />
@@ -339,10 +361,10 @@ export default function Home() {
                 {isLoading ? (
                   <span className="flex items-center justify-center space-x-2">
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    <span>Consulting the Ancient Wisdom...</span>
+                    <span>Consulting the {readingType === 'mystic' ? 'Ancient Wisdom' : 'Sacred Cards'}...</span>
                   </span>
                 ) : (
-                  'Seek Divine Guidance'
+                  `Seek ${readingType === 'mystic' ? 'Divine Guidance' : 'Tarot Wisdom'}`
                 )}
               </span>
             </button>

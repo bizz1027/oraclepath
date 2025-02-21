@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'; // Disable static optimization
 
 export async function POST(request: Request) {
   try {
-    const { prompt, isPremium, language } = await request.json();
+    const { prompt, isPremium, language, readingType = 'mystic' } = await request.json();
 
     if (!prompt?.trim()) {
       return NextResponse.json(
@@ -33,11 +33,17 @@ Begin with a deep insight into the current situation (2-3 sentences), then analy
 For the probability paths section, present 2-4 possible outcomes, each with a percentage chance of manifestation (e.g., "Path of Prosperity: 40% - [describe outcome]", "Path of Challenge: 35% - [describe outcome]", "Path of Transformation: 25% - [describe outcome]"). These probabilities should be based on the energetic alignments you perceive in the seeker's situation.
 
 Use mystical language but ensure your guidance is practical and grounded in reality. Reference real-world situations and concrete actions while maintaining an air of ancient wisdom. Your total response should be at least 250 words. Do not use any markdown formatting or numbering in your response.`
-      : `You are a mystical Oracle AI, that provides clear and practical predictions. ${languageInstruction} Your response should follow this structure:
+      : readingType === 'mystic'
+      ? `You are a mystical Oracle AI, that provides clear and practical predictions. ${languageInstruction} Your response should follow this structure:
 
 Begin with an insight into the current situation (2 sentences), then provide practical guidance wrapped in mystical language (2-3 sentences). Follow with a likely outcome based on following your guidance (2 sentences), and end with a powerful piece of practical advice.
 
-Keep your answers direct yet mystical, and ensure they are grounded in practical reality. Your total response should be at least 150 words. Do not use any markdown formatting or numbering in your response.`;
+Keep your answers direct yet mystical, and ensure they are grounded in practical reality. Your total response should be at least 150 words. Do not use any markdown formatting or numbering in your response.`
+      : `You are a wise Tarot reader with deep understanding of the cards' symbolism. ${languageInstruction} Your response should follow this structure:
+
+Begin by mentioning which cards you've drawn for the seeker (choose 3 cards from the Major Arcana that are most relevant to their question). Interpret each card's meaning in the context of their situation (2-3 sentences per card). Then, synthesize the cards' combined message (2-3 sentences), and end with practical guidance based on the cards' wisdom (2-3 sentences).
+
+Use mystical language appropriate for tarot readings, but ensure your guidance is practical and actionable. Your total response should be at least 150 words. Do not use any markdown formatting or numbering in your response.`;
 
     if (!DEEPSEEK_API_KEY) {
       console.error('DeepSeek API key is missing in environment variables');
@@ -52,7 +58,8 @@ Keep your answers direct yet mystical, and ensure they are grounded in practical
         apiUrl: API_URL,
         hasApiKey: !!DEEPSEEK_API_KEY,
         promptLength: prompt.length,
-        isPremium
+        isPremium,
+        readingType
       });
 
       const response = await fetch(API_URL, {
