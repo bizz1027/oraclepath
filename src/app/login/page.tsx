@@ -68,12 +68,18 @@ export default function Login() {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-black overflow-auto">
-      {/* Full screen gradient background with safe area handling */}
-      <div className="fixed top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-purple-900 to-black" style={{ top: 'env(safe-area-inset-top)' }} />
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center bg-black">
+      {/* Full screen gradient background */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-b from-purple-900 to-black" 
+        style={{ 
+          height: 'calc(100 * var(--vh))',
+          marginTop: 'calc(-1 * var(--safe-top))'
+        }} 
+      />
       
       {/* Content container */}
-      <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative">
+      <div className="w-full flex flex-col items-center justify-center p-4 relative">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl top-0 -left-64 animate-blob1"></div>

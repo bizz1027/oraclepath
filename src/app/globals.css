@@ -6,6 +6,14 @@
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 44, 16, 86;
   --background-end-rgb: 0, 0, 0;
+  --vh: 1vh;
+  --safe-top: env(safe-area-inset-top);
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --vh: 1dvh;
+  }
 }
 
 body {
@@ -15,7 +23,16 @@ body {
     rgb(var(--background-start-rgb)),
     rgb(var(--background-end-rgb))
   );
-  min-height: 100vh;
+  min-height: calc(100 * var(--vh));
+  padding-top: var(--safe-top);
+}
+
+.min-h-screen {
+  min-height: calc(100 * var(--vh));
+}
+
+.h-screen {
+  height: calc(100 * var(--vh));
 }
 
 @keyframes fadeIn {

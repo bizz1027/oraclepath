@@ -85,11 +85,20 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href={baseUrl} />
         <meta name="theme-color" content="#2D1B69" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                function setVH() {
+                  let vh = window.innerHeight * 0.01;
+                  document.documentElement.style.setProperty('--vh', vh + 'px');
+                }
+                
+                setVH();
+                window.addEventListener('resize', setVH);
+                window.addEventListener('orientationchange', setVH);
+                
                 try {
                   if (typeof window !== 'undefined') {
                     var userAgent = window.navigator.userAgent.toLowerCase();
