@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../lib/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function Login() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -28,6 +31,23 @@ export default function Login() {
     } catch (error) {
       console.error('Error signing in with Google:', error);
       setError('Failed to sign in with Google. Please try again.');
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+      router.replace('/');
+    } catch (error: any) {
+      console.error('Error with email auth:', error);
+      setError(error.message);
     }
   };
 
@@ -77,15 +97,59 @@ export default function Login() {
             </div>
           )}
 
+          <form onSubmit={handleEmailAuth} className="space-y-4 mt-6">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full p-3 bg-purple-800/30 border border-purple-600/50 rounded-lg text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className="w-full p-3 bg-purple-800/30 border border-purple-600/50 rounded-lg text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+            />
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition-all relative overflow-hidden group"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 group-hover:scale-110 transform transition-all duration-700 ease-out"></span>
+              <span className="relative">{isSignUp ? 'Sign Up' : 'Sign In'}</span>
+            </button>
+          </form>
+
+          <div className="text-purple-200 text-sm">
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="hover:text-purple-100 transition-colors"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
+          </div>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-purple-600/30"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-purple-900/30 text-purple-300">or</span>
+            </div>
+          </div>
+
           <button
             onClick={signInWithGoogle}
-            className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all mt-6 disabled:opacity-50 group relative overflow-hidden"
+            className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50 group relative overflow-hidden"
             disabled={loading}
           >
             <span className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-pink-400/10 opacity-0 group-hover:opacity-100 transform group-hover:scale-110 transition-all duration-500"></span>
             <img src="/google-icon.svg" alt="Google" className="w-6 h-6 relative" />
             <span className="font-medium relative">
-              {loading ? 'Opening Portal...' : 'Begin Your Journey'}
+              {loading ? 'Opening Portal...' : 'Continue with Google'}
             </span>
           </button>
         </div>
