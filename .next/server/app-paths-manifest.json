@@ -1,7 +1,1 @@
-{
-  "/api/predict/route": "app/api/predict/route.js",
-  "/login/page": "app/login/page.js",
-  "/page": "app/page.js",
-  "/blog/page": "app/blog/page.js",
-  "/blog/[slug]/page": "app/blog/[slug]/page.js"
-}
+{}

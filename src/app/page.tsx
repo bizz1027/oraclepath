@@ -339,8 +339,13 @@ export default function Home() {
               )}
             </div>
             {!isPremium && (
-              <div className="text-xs sm:text-sm text-purple-300">
-                {remainingPredictions} {readingType === 'mystic' ? 'Mystic Visions' : 'Tarot Readings'} remaining today
+              <div>
+                <div className="text-xs sm:text-sm text-purple-300">
+                  {remainingPredictions} {readingType === 'mystic' ? 'Mystic Visions' : 'Tarot Readings'} remaining today
+                </div>
+                <div className="mt-2 text-xs sm:text-sm text-purple-400/80 italic bg-purple-900/20 px-4 py-2 rounded-full border border-purple-500/10 backdrop-blur-sm hover:bg-purple-900/30 transition-all duration-300 cursor-default">
+                  ✨ Pro tip: Include your preferred language in your question for a response in that language
+                </div>
               </div>
             )}
           </div>
