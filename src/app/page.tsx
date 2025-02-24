@@ -142,13 +142,19 @@ export default function Home() {
       }
 
       // Detect the language of the prompt with improved handling
-      const detectedLang = franc(prompt, {
-        minLength: 1,
+      const detectedLangInfo = franc(prompt, {
+        minLength: 20,
         only: ['eng', 'swe', 'nor', 'dan', 'fin', 'ice', 'est', 'lav', 'lit', 'ger', 'fra', 'spa', 'ita', 'por', 'rus', 'pol', 'ukr', 'hun', 'ces', 'slk', 'hrv', 'srp', 'bos', 'slv', 'bul', 'ron', 'ell', 'tur', 'ara', 'heb', 'fas', 'hin', 'ben', 'tam', 'tel', 'mar', 'urd', 'tha', 'vie', 'ind', 'msa', 'jpn', 'kor', 'cmn', 'yue', 'wuu']
       });
+
+      // Enhanced language detection rules:
+      // 1. Default to English for short texts (< 20 characters)
+      // 2. Default to English for undetected language ('und')
+      // 3. Default to English if the text contains common English words/patterns
+      const commonEnglishPatterns = /\b(the|is|are|what|how|why|when|who|where|do|does|did|can|could|would|will|i|you|he|she|it|we|they)\b/i;
+      const hasEnglishPatterns = commonEnglishPatterns.test(prompt.toLowerCase());
       
-      // If the text is too short or language detection is uncertain, default to English
-      const language = !detectedLang || detectedLang === 'und' || prompt.length < 10 ? 'eng' : detectedLang;
+      const language = prompt.length < 20 || detectedLangInfo === 'und' || hasEnglishPatterns ? 'eng' : detectedLangInfo;
 
       const response = await fetch('/api/predict', {
         method: 'POST',
