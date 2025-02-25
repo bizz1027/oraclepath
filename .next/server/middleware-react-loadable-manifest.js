@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"app/blog/[slug]/BlogPostClient.tsx -> @/components/BlogCalculators\":{\"id\":\"app/blog/[slug]/BlogPostClient.tsx -> @/components/BlogCalculators\",\"files\":[\"static/chunks/_app-pages-browser_src_components_BlogCalculators_tsx.js\"]}}"

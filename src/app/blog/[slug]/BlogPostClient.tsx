@@ -146,12 +146,21 @@ export default function BlogPostClient({ initialPost }: { initialPost: BlogPost 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black text-white p-8">
       <div className="max-w-4xl mx-auto">
-        <Link
-          href="/blog"
-          className="inline-block mb-8 text-purple-400 hover:text-purple-300 transition-colors"
-        >
-          ← Back to Archives
-        </Link>
+        <div className="flex justify-between items-center mb-8">
+          <Link
+            href="/blog"
+            className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Back to Archives</span>
+          </Link>
+          <Link
+            href="/"
+            className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2"
+          >
+            <span>Return to Oracle</span>
+          </Link>
+        </div>
 
         <article className="bg-black/30 rounded-lg p-8 shadow-xl">
           <header className="mb-8">
