@@ -31,5 +31,13 @@ service cloud.firestore {
                   exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
+
+    match /feedback/{feedbackId} {
+      allow create: if request.auth != null && 
+                   request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null && 
+                 exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                 get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
   }
 } 

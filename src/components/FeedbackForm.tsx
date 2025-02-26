@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db } from '../lib/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { auth } from '../lib/firebase';
 
 export default function FeedbackForm() {
   const [user] = useAuthState(auth);
@@ -25,18 +24,45 @@ export default function FeedbackForm() {
     setError(null);
 
     try {
-      await addDoc(collection(db, 'feedback'), {
+      console.log('Attempting to submit feedback:', {
         userId: user.uid,
-        userEmail: user.email,
-        message: feedback.trim(),
-        createdAt: serverTimestamp(),
+        feedbackLength: feedback.length,
+        timestamp: new Date().toISOString()
       });
+
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          userEmail: user.email,
+          message: feedback.trim(),
+          platform: 'web',
+          userAgent: window.navigator.userAgent
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit feedback');
+      }
+
+      console.log('Feedback submitted successfully:', data.feedbackId);
 
       setFeedback('');
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
-      setError('Failed to submit feedback. Please try again.');
+      console.error('Detailed feedback submission error:', err);
+      
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to submit feedback. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
