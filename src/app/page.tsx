@@ -328,6 +328,12 @@ export default function Home() {
               >
                 Tarot Reading
               </button>
+              <Link
+                href="/astrology"
+                className="px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base bg-purple-900 text-purple-300 hover:bg-purple-800 transition-colors"
+              >
+                Celestial Insights
+              </Link>
               {hasPremiumAccess && (
                 <button
                   onClick={() => {
