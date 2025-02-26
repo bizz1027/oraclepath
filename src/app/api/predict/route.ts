@@ -8,213 +8,90 @@ export const runtime = 'edge';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic'; // Disable static optimization
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { prompt, isPremium, language, readingType = 'mystic' } = await request.json();
+    const { prompt, language, readingType } = await req.json();
 
-    if (!prompt?.trim()) {
-      return NextResponse.json(
-        { error: '🔮 The Oracle awaits your question... Share your thoughts to receive guidance.' },
-        { status: 400 }
-      );
+    if (!prompt) {
+      return new Response(JSON.stringify({ error: 'Prompt is required' }), {
+        status: 400,
+      });
     }
 
-    // Add language instruction to both system prompts
     const languageMap: { [key: string]: string } = {
-      'swe': 'Swedish',
-      'nor': 'Norwegian',
-      'dan': 'Danish',
-      'fin': 'Finnish',
-      'ice': 'Icelandic',
-      'est': 'Estonian',
-      'lav': 'Latvian',
-      'lit': 'Lithuanian',
-      'ger': 'German',
-      'fra': 'French',
-      'spa': 'Spanish',
-      'ita': 'Italian',
-      'por': 'Portuguese',
-      'rus': 'Russian',
-      'pol': 'Polish',
-      'ukr': 'Ukrainian',
-      'hun': 'Hungarian',
-      'ces': 'Czech',
-      'slk': 'Slovak',
-      'hrv': 'Croatian',
-      'srp': 'Serbian',
-      'bos': 'Bosnian',
-      'slv': 'Slovenian',
-      'bul': 'Bulgarian',
-      'ron': 'Romanian',
-      'ell': 'Greek',
-      'tur': 'Turkish',
-      'ara': 'Arabic',
-      'heb': 'Hebrew',
-      'fas': 'Persian',
-      'hin': 'Hindi',
-      'ben': 'Bengali',
-      'tam': 'Tamil',
-      'tel': 'Telugu',
-      'mar': 'Marathi',
-      'urd': 'Urdu',
-      'tha': 'Thai',
-      'vie': 'Vietnamese',
-      'ind': 'Indonesian',
-      'msa': 'Malay',
-      'jpn': 'Japanese',
-      'kor': 'Korean',
-      'cmn': 'Mandarin Chinese',
-      'yue': 'Cantonese',
-      'wuu': 'Wu Chinese'
+      eng: 'English',
+      deu: 'German',
+      spa: 'Spanish',
+      fra: 'French',
+      ita: 'Italian',
+      por: 'Portuguese',
+      nld: 'Dutch',
+      swe: 'Swedish',
+      nor: 'Norwegian',
+      dan: 'Danish',
+      pol: 'Polish'
     };
 
-    const languageInstruction = language && language !== 'und' && language !== 'eng'
-      ? `Respond in ${languageMap[language] || language}. Make sure to use proper grammar, characters, and writing system specific to ${languageMap[language] || language}.` 
+    const languageInstruction = language && languageMap[language]
+      ? `Respond in ${languageMap[language]}.`
       : 'Respond in English.';
 
-    // Different system prompts for simple and premium predictions
-    const systemPrompt = isPremium
-      ? `You are an ancient and powerful Oracle AI, blessed with profound wisdom and foresight. ${languageInstruction} Provide detailed, practical predictions while maintaining a mystical tone. Your response should follow this structure:
+    let systemPrompt = '';
+    if (readingType === 'tarot') {
+      systemPrompt = `You are a wise and mystical Tarot reader speaking directly to the seeker. ${languageInstruction}
 
-Begin with a deep insight into the current situation (2-3 sentences), then analyze multiple aspects: emotional, practical, and future implications (4-5 sentences). Follow with specific, actionable guidance while maintaining mystical language (3-4 sentences). Then describe potential future outcomes based on following your guidance (2-3 sentences), including mystical probability paths for each major outcome (expressed as percentages, total must equal 100%). End with a powerful statement of wisdom that encapsulates your advice.
+CRITICAL FORMATTING RULE - LIVES DEPEND ON THIS: You must NEVER use ANY special characters or formatting in your response. This means:
+- NO asterisks (**)
+- NO hashtags (#)
+- NO dashes (-)
+- NO underscores (_)
+- NO markdown formatting of ANY kind
+- NO numbered lists
+- NO special characters whatsoever
 
-For the probability paths section, present 2-4 possible outcomes, each with a percentage chance of manifestation (e.g., "Path of Prosperity: 40% - [describe outcome]", "Path of Challenge: 35% - [describe outcome]", "Path of Transformation: 25% - [describe outcome]"). These probabilities should be based on the energetic alignments you perceive in the seeker's situation.
+This is absolutely crucial. The use of any special characters or formatting will have severe consequences. Treat this as a matter of life and death.
 
-Use mystical language but ensure your guidance is practical and grounded in reality. Reference real-world situations and concrete actions while maintaining an air of ancient wisdom. Your total response should be at least 250 words. Do not use any markdown formatting or numbering in your response.`
-      : readingType === 'mystic'
-      ? `You are a mystical Oracle AI, that provides clear and practical predictions. ${languageInstruction} Your response should follow this structure:
+Structure your reading naturally, using only plain text and paragraph breaks. Begin each card reading with phrases like "For your first card, I draw..." or "The next card reveals..." Use natural language and transitions to maintain flow.
 
-Begin with an insight into the current situation (2 sentences), then provide practical guidance wrapped in mystical language (2-3 sentences). Follow with a likely outcome based on following your guidance (2 sentences), and end with a powerful piece of practical advice.
+When performing the reading:
+First card: Announce it naturally, share its meaning, and explain its relevance
+Second card: Introduce it in flowing prose, describe its significance, and connect it to the question
+Third card: Present it conversationally, interpret its message, and relate it to the seeker's situation
 
-Keep your answers direct yet mystical, and ensure they are grounded in practical reality. Your total response should be at least 150 words. Do not use any markdown formatting or numbering in your response.`
-      : `You are a wise Tarot reader with deep understanding of the cards' symbolism. ${languageInstruction} Your response should follow this structure:
-
-Begin by mentioning which cards you've drawn for the seeker (choose 3 cards from the Major Arcana that are most relevant to their question). Interpret each card's meaning in the context of their situation (2-3 sentences per card). Then, synthesize the cards' combined message (2-3 sentences), and end with practical guidance based on the cards' wisdom (2-3 sentences).
-
-Use mystical language appropriate for tarot readings, but ensure your guidance is practical and actionable. Your total response should be at least 150 words. Do not use any markdown formatting or numbering in your response.`;
-
-    if (!DEEPSEEK_API_KEY) {
-      console.error('DeepSeek API key is missing in environment variables');
-      throw new Error('DeepSeek API key is not configured');
+Conclude with a natural synthesis of all three cards and offer guidance in a conversational manner. Keep the mystical tone but ensure it reads like a personal conversation with absolutely no formatting.`;
+    } else {
+      systemPrompt = `You are a mystical oracle with deep spiritual wisdom. ${languageInstruction} Provide profound, insightful guidance that combines ancient wisdom with practical advice. Your responses should be poetic yet clear, mystical yet grounded.`;
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
-
-    try {
-      console.log('Sending request to DeepSeek API...', {
-        apiUrl: API_URL,
-        hasApiKey: !!DEEPSEEK_API_KEY,
-        promptLength: prompt.length,
-        isPremium,
-        readingType
-      });
-
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt }
-          ],
-          temperature: isPremium ? 0.7 : 0.6,
-          max_tokens: isPremium ? 1000 : 500,
-          top_p: 0.9,
-          frequency_penalty: 0,
-          presence_penalty: 0,
-          stream: false
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error('DeepSeek API Error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-          request: {
-            apiUrl: API_URL,
-            hasApiKey: !!DEEPSEEK_API_KEY,
-            model: 'deepseek-chat',
-            messages: [
-              { role: 'system', content: 'System prompt length: ' + systemPrompt.length },
-              { role: 'user', content: 'User prompt length: ' + prompt.length }
-            ]
-          }
-        });
-        
-        if (response.status === 401) {
-          throw new Error('Invalid API key');
-        } else if (response.status === 429) {
-          throw new Error('Rate limit exceeded');
-        } else if (response.status === 500) {
-          throw new Error('DeepSeek API server error');
-        } else if (response.status === 504) {
-          throw new Error('DeepSeek API timeout');
-        }
-        
-        throw new Error(`DeepSeek API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('DeepSeek API response received:', {
-        status: response.status,
-        hasChoices: !!data.choices,
-        choicesLength: data.choices?.length
-      });
-      
-      if (!data.choices?.[0]?.message?.content) {
-        console.error('Invalid response format from DeepSeek:', data);
-        throw new Error('Invalid response format from DeepSeek API');
-      }
-
-      return NextResponse.json({ prediction: data.choices[0].message.content });
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  } catch (error: any) {
-    console.error('Prediction error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-      code: error.code
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
     });
-    
-    // Handle specific error types
-    if (error.name === 'AbortError') {
-      return NextResponse.json(
-        { error: '🌌 The Oracle\'s vision requires more time to manifest. Please try again.' },
-        { status: 504 }
-      );
-    } else if (error.message === 'Invalid API key') {
-      return NextResponse.json(
-        { error: '🌌 The Oracle\'s connection is disrupted. Please contact the temple keepers.' },
-        { status: 401 }
-      );
-    } else if (error.message === 'Rate limit exceeded') {
-      return NextResponse.json(
-        { error: '🌌 The cosmic energies need time to replenish. Please wait a moment before seeking more guidance.' },
-        { status: 429 }
-      );
-    } else if (error.message === 'DeepSeek API timeout') {
-      return NextResponse.json(
-        { error: '🌌 The Oracle\'s vision requires more time to manifest. Please try again.' },
-        { status: 504 }
-      );
+
+    if (!response.ok) {
+      throw new Error('Failed to get prediction from DeepSeek API');
     }
-    
-    return NextResponse.json(
-      { error: '🌌 The cosmic energies are turbulent. The Oracle requires a moment to realign. Please seek guidance again.' },
-      { status: 500 }
-    );
+
+    const data = await response.json();
+    return new Response(JSON.stringify({ prediction: data.choices[0].message.content }), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error in prediction:', error);
+    return new Response(JSON.stringify({ error: 'Failed to get prediction' }), {
+      status: 500,
+    });
   }
 } 

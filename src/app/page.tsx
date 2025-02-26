@@ -13,6 +13,8 @@ import DisclaimerModal from '../components/DisclaimerModal';
 import PrivacyPolicy from '../components/PrivacyPolicy';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { franc } from 'franc';
+import LanguageSelector from '@/components/LanguageSelector';
+import FeedbackForm from '../components/FeedbackForm';
 
 export default function Home() {
   const [user, loading] = useAuthState(auth);
@@ -21,6 +23,7 @@ export default function Home() {
   const [prediction, setPrediction] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('eng');
   const [readingType, setReadingType] = useState<'mystic' | 'tarot'>('mystic');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
@@ -141,57 +144,42 @@ export default function Home() {
         }
       }
 
-      // Detect the language of the prompt with improved handling
-      const detectedLangInfo = franc(prompt, {
-        minLength: 20,
-        only: ['eng', 'swe', 'nor', 'dan', 'fin', 'ice', 'est', 'lav', 'lit', 'ger', 'fra', 'spa', 'ita', 'por', 'rus', 'pol', 'ukr', 'hun', 'ces', 'slk', 'hrv', 'srp', 'bos', 'slv', 'bul', 'ron', 'ell', 'tur', 'ara', 'heb', 'fas', 'hin', 'ben', 'tam', 'tel', 'mar', 'urd', 'tha', 'vie', 'ind', 'msa', 'jpn', 'kor', 'cmn', 'yue', 'wuu']
-      });
-
-      // Enhanced language detection rules:
-      // 1. Default to English for short texts (< 20 characters)
-      // 2. Default to English for undetected language ('und')
-      // 3. Default to English if the text contains common English words/patterns
-      const commonEnglishPatterns = /\b(the|is|are|what|how|why|when|who|where|do|does|did|can|could|would|will|i|you|he|she|it|we|they)\b/i;
-      const hasEnglishPatterns = commonEnglishPatterns.test(prompt.toLowerCase());
-      
-      const language = prompt.length < 20 || detectedLangInfo === 'und' || hasEnglishPatterns ? 'eng' : detectedLangInfo;
-
       const response = await fetch('/api/predict', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          prompt, 
-          isPremium,
-          language,
-          readingType
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          readingType,
+          language: selectedLanguage,
         }),
       });
 
-      const data = await response.json();
-      
-      if (data.error) {
-        setPrediction(data.error);
-      } else {
-        setPrediction(data.prediction);
-        if (user) {
-          await savePrediction({
-            userId: user.uid,
-            prompt,
-            prediction: data.prediction,
-            isPremium,
-            language,
-            readingType
-          });
-
-          // Increment usage for free predictions only
-          if (!isPremium) {
-            await incrementDailyUsage(user.uid);
-            await updateRemainingPredictions();
-          }
-        }
+      if (!response.ok) {
+        throw new Error('Failed to get prediction');
       }
-    } catch (error) {
-      console.error('Error:', error);
+
+      const data = await response.json();
+      setPrediction(data.prediction);
+      if (user) {
+        await savePrediction({
+          userId: user.uid,
+          prompt,
+          prediction: data.prediction,
+          isPremium,
+          language: selectedLanguage,
+          readingType
+        });
+      }
+
+      // Increment usage for free predictions only
+      if (!isPremium && user) {
+        await incrementDailyUsage(user.uid);
+        await updateRemainingPredictions();
+      }
+    } catch (err) {
+      console.error('Error:', err instanceof Error ? err.message : 'An error occurred');
       setPrediction('🌌 The cosmic energies are turbulent. The Oracle requires a moment to realign. Please seek guidance again.');
     } finally {
       setIsLoading(false);
@@ -328,12 +316,6 @@ export default function Home() {
               >
                 Tarot Reading
               </button>
-              <Link
-                href="/astrology"
-                className="px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base bg-purple-900 text-purple-300 hover:bg-purple-800 transition-colors"
-              >
-                Celestial Insights
-              </Link>
               {hasPremiumAccess && (
                 <button
                   onClick={() => {
@@ -356,9 +338,6 @@ export default function Home() {
                   {remainingPredictions} {readingType === 'mystic' ? 'Mystic Visions' : 'Tarot Readings'} remaining today
                 </div>
               )}
-              <div className="mt-2 text-xs sm:text-sm text-purple-400/80 italic bg-purple-900/20 px-4 py-2 rounded-full border border-purple-500/10 backdrop-blur-sm hover:bg-purple-900/30 transition-all duration-300 cursor-default text-center">
-                ✨ Pro tip: Include your preferred language in your question for a response in that language
-              </div>
             </div>
           </div>
 
@@ -374,6 +353,11 @@ export default function Home() {
                 required
               />
             </div>
+
+            <LanguageSelector
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={setSelectedLanguage}
+            />
 
             <button
               type="submit"
@@ -407,6 +391,8 @@ export default function Home() {
               <PredictionHistory />
             </div>
           )}
+
+          <FeedbackForm />
 
           <div className="mt-8 sm:mt-12 text-center space-y-4">
             <Link
