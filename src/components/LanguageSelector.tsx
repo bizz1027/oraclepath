@@ -28,7 +28,7 @@ export default function LanguageSelector({ onLanguageChange, selectedLanguage }:
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="px-4 py-2 bg-purple-900/30 border border-purple-700/50 rounded-lg text-purple-200 hover:bg-purple-800/40 transition-colors flex items-center space-x-2"
+        className="px-4 py-2 bg-purple-800 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 w-full sm:w-auto justify-center"
       >
         <span>🌐</span>
         <span>{selectedLangName}</span>

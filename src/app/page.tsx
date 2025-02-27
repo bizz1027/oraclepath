@@ -132,6 +132,7 @@ export default function Home() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setPrediction('');
 
     try {
       // Check daily limit for free users
@@ -144,6 +145,12 @@ export default function Home() {
         }
       }
 
+      console.log('Submitting prediction request:', {
+        isPremium,
+        readingType,
+        language: selectedLanguage
+      });
+
       const response = await fetch('/api/predict', {
         method: 'POST',
         headers: {
@@ -153,6 +160,7 @@ export default function Home() {
           prompt,
           readingType,
           language: selectedLanguage,
+          isPremium: isPremium && hasPremiumAccess // Only set true if user has premium access and Divine Insight is selected
         }),
       });
 
@@ -162,12 +170,13 @@ export default function Home() {
 
       const data = await response.json();
       setPrediction(data.prediction);
+      
       if (user) {
         await savePrediction({
           userId: user.uid,
           prompt,
           prediction: data.prediction,
-          isPremium,
+          isPremium: isPremium && hasPremiumAccess,
           language: selectedLanguage,
           readingType
         });
@@ -184,6 +193,12 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleReadingTypeChange = (type: 'mystic' | 'tarot', premium: boolean) => {
+    setReadingType(type);
+    setIsPremium(premium);
+    setPrediction(''); // Clear previous prediction when switching types
   };
 
   if (loading) {
@@ -209,6 +224,10 @@ export default function Home() {
               Oracle Path
             </h1>
             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <LanguageSelector
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={setSelectedLanguage}
+              />
               <button
                 onClick={() => setShowHistory(!showHistory)}
                 className="px-4 py-2 bg-purple-800 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 w-full sm:w-auto justify-center"
@@ -291,10 +310,7 @@ export default function Home() {
 
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => {
-                  setIsPremium(false);
-                  setReadingType('mystic');
-                }}
+                onClick={() => handleReadingTypeChange('mystic', false)}
                 className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
                   !isPremium && readingType === 'mystic'
                     ? 'bg-purple-600 text-white'
@@ -304,10 +320,7 @@ export default function Home() {
                 Mystic Vision
               </button>
               <button
-                onClick={() => {
-                  setIsPremium(false);
-                  setReadingType('tarot');
-                }}
+                onClick={() => handleReadingTypeChange('tarot', false)}
                 className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
                   !isPremium && readingType === 'tarot'
                     ? 'bg-purple-600 text-white'
@@ -318,10 +331,7 @@ export default function Home() {
               </button>
               {hasPremiumAccess && (
                 <button
-                  onClick={() => {
-                    setIsPremium(true);
-                    setReadingType('mystic');
-                  }}
+                  onClick={() => handleReadingTypeChange('mystic', true)}
                   className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base ${
                     isPremium
                       ? 'bg-purple-600 text-white'
@@ -353,11 +363,6 @@ export default function Home() {
                 required
               />
             </div>
-
-            <LanguageSelector
-              selectedLanguage={selectedLanguage}
-              onLanguageChange={setSelectedLanguage}
-            />
 
             <button
               type="submit"
